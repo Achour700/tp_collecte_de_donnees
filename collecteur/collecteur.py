@@ -1,48 +1,50 @@
+import serial
 import matplotlib.pyplot as plt
-from serial import Serial
 
-# Définissez le port série correspondant à votre Arduino
-ser = Serial('/dev/ttyUSB0', 9600)  # Remplacez '/dev/ttyUSB0' par le port série réel
+# Paramètres de communication série
+port = '/dev/ttyUSB0'  # Remplacez 'COMx' par le port série approprié (par exemple, 'COM3' sur Windows)
+baudrate = 9600
 
-# Initialisation des listes pour stocker les données
+# Ouvrir la connexion série
+ser = serial.Serial(port, baudrate, timeout=1)
+
+# Initialiser les listes pour stocker les données
 temps = []
-temperature = []
-humidite = []  # Nouvelle liste pour stocker l'humidité
+temperature_noeud1 = []
+temperature_noeud2 = []
 
-# Fonction pour lire les données série et les ajouter aux listes
+# Fonction pour lire les données série
 def lire_donnees_serie():
-    ligne = ser.readline().decode('utf-8').strip()
-    if ligne:
-        split_data = ligne.split()
-        if len(split_data) >= 2:  # Check if there are at least two elements in the split result
-            temps.append(len(temps) + 1)  # Utilisez une simple numérotation temporelle
-            temperature.append(float(split_data[0]))
-            humidite.append(float(split_data[1]))
-        else:
-            print("Invalid data format:", ligne)
+    while True:
+        line = ser.readline().decode('utf-8').rstrip()
+        if line:
+            return line
 
-# Lecture continue des données série et mise à jour des graphiques
+# Boucle principale
 try:
     while True:
-        lire_donnees_serie()
+        data = lire_donnees_serie()
+        print(data)  # Afficher les données reçues depuis Arduino
 
-        # Mise à jour du premier graphique (température)
-        plt.figure(1)
-        plt.plot(temps, temperature, marker='*', linestyle='-', color='b')
-        plt.xlabel('Temps')
-        plt.ylabel('Température')
-        plt.title('Tracé de la température au fil du temps')
+        # Analyser les données et les ajouter aux listes
+        if data.startswith('3'):
+            temperature = int(data[15:17])  # Extraire la température
+            temps.append(len(temps) + 1)  # Utiliser la position dans la liste comme temps
+            if data[7] == '1':
+                temperature_noeud1.append(temperature)
+            elif data[7] == '2':
+                temperature_noeud2.append(temperature)
 
-        # Mise à jour du deuxième graphique (humidité)
-        plt.figure(2)
-        plt.plot(temps, humidite, marker='*', linestyle='-', color='r')
-        plt.xlabel('Temps')
-        plt.ylabel('Humidité')
-        plt.title('Tracé de l\'humidité au fil du temps')
-
-        plt.pause(1)  # Rafraîchissement du graphique toutes les secondes
+            # Tracer les courbes
+            plt.plot(temps, temperature_noeud1, label='Noeud 1')
+            plt.plot(temps, temperature_noeud2, label='Noeud 2')
+            plt.xlabel('Temps')
+            plt.ylabel('Température')
+            plt.legend()
+            plt.show()
 
 except KeyboardInterrupt:
-    print("Arrêt de la lecture des données série.")
+    # Fermer la connexion série lorsqu'on appuie sur Ctrl+C
     ser.close()
-    plt.show()  # Affiche les graphiques à la fin
+    print("Connexion série fermée.")
+

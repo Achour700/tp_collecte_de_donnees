@@ -10,9 +10,9 @@
 unsigned char local_ID[3] = {192, 168, 1};
 // Tableau qui recoi la tram
 String RTram = ""; // Variable pour stocker la tram reçu sous forme de stirng
-volatile char STram[sizeoftram] = {0};
-volatile char data[sizeofdata];
-volatile char noeud_ID[8] = {0}; // tab qui stock les adresses affectes
+ char STram[sizeoftram] = {0};
+ char data[sizeofdata];
+ char noeud_ID[8] = {0}; // tab qui stock les adresses affectes
 String MAC[8] = {""}; // Tableau pour enregistrement des adresse MAC de 8 nodes
 String Mac_ad = ""; // var pour enregistrer mac adresse lors de demande d'identification
 String IP_ad = ""; // var pour enregistré l'adresse IP (affecté) lors de reception d'un trame de donnée ou une tram de sortie de réseau
@@ -36,13 +36,13 @@ String get_data(String Rtram) {
 int chek_if_exist(String Mac_Ad) {
   for (int i = 0 ; i < 8 ; i++) {
     if (MAC[i] == Mac_Ad) {
-     Serial.print("MAC Adresse trouvée : ");
-     Serial.println(Mac_Ad);
+      Serial.print("MAC Adresse trouvée : ");
+      Serial.println(Mac_Ad);
       return 1;
     }
   }
   Serial.print("nouveau noeud - Adresse MAC : ");
- Serial.println(Mac_Ad);
+  Serial.println(Mac_Ad);
   return 0;
 }
 
@@ -112,7 +112,7 @@ void loop() {
 
           else Set_Tram(Affect_ID, 0);
           sendTram(&STram[0]);
-         Serial.println("Tram d'identification envoyé.");
+          Serial.println("Tram d'identification envoyé.");
           RTram = "";
           break;
         }
@@ -138,7 +138,7 @@ void loop() {
             noeud_ID[i] == "";
             MAC[i] == "";
             nbr_noeud = i; // on met l'indice i sur nbr_noeud si un autre noeud vient de connecter on l'enregistre sur la case vide
-           Serial.print("Noeud suprimer.");
+            Serial.print("Noeud suprimer.");
 
             break; // fin boucle
 
@@ -152,11 +152,13 @@ void loop() {
         Serial.print("ID de noeud : ");
         Serial.println(IP_ad);
         Data = get_data(RTram);
+        
         Serial.print("Temperature : ");
-
-       Serial.println((String)RTram[15] + (String)RTram[16]);
-     String humidite = ((String)RTram[17] + (String)RTram[18]);
-    Serial.println(humidite);
+        Serial.println((String)RTram[15] + (String)RTram[16]);
+        
+        Serial.print("Humidite : ");
+        Serial.println((String)RTram[17] + (String)RTram[18]);
+        //Serial.println(humidite);
 
         RTram = "";
         break;
