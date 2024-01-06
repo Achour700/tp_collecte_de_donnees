@@ -3,7 +3,7 @@
 */
 #define sizeofdata 247 // maximum d'octets de données
 #define sizeoftram 255
-#define Demand_ID 3 // Tram de demande d'ID
+#define Demand_ID 0 // Tram de demande d'ID
 #define Out_of_Net 2 // Tram informant la sortie du noeud
 #define Send_data 3 // Tram d'envoi de donnees
 //#include <SPI.h>
@@ -97,25 +97,35 @@ STram[6] = dest_ID[2]; // Premier octet d'adresse destination = 1
 Serial.println("Temperature:,Humidity:"); // Plot labels
 }
 void loop() {
-/*int out = 0;
-for (int i = 0 ; i < 3 ; i++){ // envoyer tois mesure de temperature puis
-demande de sortie
-sht.readSample();
-Serial.print(sht.getTemperature());
-Serial.print(F(" "));
-Serial.println(sht.getHumidity());
-STram[7] = sht.getTemperature();
-STram[8] = 0xFF;
-sendTram(&STram[0]);
-out++;
-delay(3000);
-if(out == 3){ // après trois mesures envoyer le noeud demande de sortir
-du reseau
-STram[0] = Out_of_Net; // Fonction 3 : Sorti de reseau
-STram[7] = 0xFF;
-sendTram(&STram[0]);
-Serial.println("Sorti du réseau.");
-while(1);
-}
-}*/
+  int out = 0;
+  for (int i = 0; i < 3; i++) { // envoyer trois mesures de température puis demande de sortie
+    // Générer des valeurs random de température et d'humidité
+    float temperature = random(0, 10);
+    float humidity = random(60, 90);
+
+    Serial.print(temperature);
+    Serial.print(" ");
+    Serial.println(humidity);
+
+    // Mettre les valeurs dans la trame
+    STram[7] = temperature;
+    STram[8] = humidity;
+
+    // Envoyer la trame
+    sendTram(&STram[0]);
+
+    out++;
+    delay(3000);
+  }
+
+  if (out == 103) { // après trois mesures, envoyer le noeud demande de sortir du réseau
+    // Mettre la fonction de la trame à 3 (sortie du réseau)
+    STram[0] = Out_of_Net;
+
+    // Envoyer la trame
+    sendTram(&STram[0]);
+
+    Serial.println("Sorti du réseau.");
+    while (1);
+  }
 }
