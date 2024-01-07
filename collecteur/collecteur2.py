@@ -13,6 +13,17 @@ temps = []
 temperature_noeud1 = []
 temperature_noeud2 = []
 
+# Créer la figure et les axes
+fig, ax = plt.subplots()
+line_noeud1, = ax.plot(temps, temperature_noeud1, label='Noeud 1')
+line_noeud2, = ax.plot(temps, temperature_noeud2, label='Noeud 2')
+
+# Configurer la mise en page
+ax.set_title('Température en fonction du temps')
+ax.set_xlabel('Temps')
+ax.set_ylabel('Température')
+ax.legend()
+
 # Fonction pour lire les données série
 def lire_donnees_serie():
     while True:
@@ -32,18 +43,22 @@ try:
             temps.append(len(temps) + 1)  # Utiliser la position dans la liste comme temps
             if data[7] == '1':
                 temperature_noeud1.append(temperature)
+                line_noeud1.set_data(temps, temperature_noeud1)
             elif data[7] == '2':
                 temperature_noeud2.append(temperature)
-            print("plot")
-            # Tracer les courbes
-            plt.plot(temps, temperature_noeud1, label='Noeud 1')
-            plt.plot(temps, temperature_noeud2, label='Noeud 2')
-            plt.xlabel('Temps')
-            plt.ylabel('Température')
-            plt.legend()
-            plt.show()
+                line_noeud2.set_data(temps, temperature_noeud2)
+
+            # Ajuster la portée de l'axe x si nécessaire
+            ax.relim()
+            ax.autoscale_view()
+
+            # Rafraîchir le dessin
+            plt.draw()
+            plt.pause(0.1)
 
 except KeyboardInterrupt:
     # Fermer la connexion série lorsqu'on appuie sur Ctrl+C
     ser.close()
     print("Connexion série fermée.")
+
+plt.show()

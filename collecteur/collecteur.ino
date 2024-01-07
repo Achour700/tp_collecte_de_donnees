@@ -88,13 +88,13 @@ void loop() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
     //received a packet
-    Serial.print("Received packet '");
+    Serial.println("Received packet:");
     // read packet
     int i = 0;
     while (LoRa.available()) {
       RTram += (char)LoRa.read();
     }
-    Serial.print(RTram);
+    Serial.println(RTram);
     //print RSSI of packet
     //Serial.print("' with RSSI ");
     //Serial.println(LoRa.packetRssi());
